@@ -16,6 +16,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SignIn" />
+        <activity
+            android:name=".SignUp"
+            android:label="@string/title_activity_sign_up"></activity>
     </application>
 
 </manifest>
