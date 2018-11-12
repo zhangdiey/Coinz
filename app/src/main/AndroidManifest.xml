@@ -19,7 +19,8 @@
         <activity android:name=".SignIn" />
         <activity
             android:name=".SignUp"
-            android:label="@string/title_activity_sign_up"></activity>
+            android:label="@string/title_activity_sign_up" />
+        <activity android:name=".GameMain"></activity>
     </application>
 
 </manifest>

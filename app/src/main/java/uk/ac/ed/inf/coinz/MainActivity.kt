@@ -3,13 +3,29 @@ package uk.ac.ed.inf.coinz
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    private var mAuth: FirebaseAuth? = null
+
+    override fun onStart() {
+        super.onStart()
+        var user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // User is signed in
+            Toast.makeText(this,"Welcome Back!", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, GameMain::class.java)
+            startActivity(intent)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         btnSignIn.setOnClickListener {
             val intent = Intent(this, SignIn::class.java)
