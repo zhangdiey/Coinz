@@ -19,6 +19,9 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this,"Welcome Back!", Toast.LENGTH_LONG).show()
             val intent = Intent(this, GameMain::class.java)
             startActivity(intent)
+        } else {
+            FirebaseAuth.getInstance().signOut()
+            Toast.makeText(this,"Please Join Us!", Toast.LENGTH_LONG).show()
         }
     }
 
