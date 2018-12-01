@@ -26,7 +26,8 @@
             android:name=".SignUp"
             android:label="@string/title_activity_sign_up" />
         <activity android:name=".GameMain" />
-        <activity android:name=".Menu"></activity>
+        <activity android:name=".Menu" />
+        <activity android:name=".Bag"></activity>
     </application>
 
 </manifest>

@@ -13,7 +13,7 @@ class Menu : AppCompatActivity() {
         setContentView(R.layout.activity_menu)
 
         btnSignOut.setOnClickListener {
-            FirebaseAuth.getInstance().signOut();
+            FirebaseAuth.getInstance().signOut()
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }

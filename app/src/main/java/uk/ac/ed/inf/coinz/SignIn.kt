@@ -32,8 +32,8 @@ class SignIn : AppCompatActivity() {
         val txtEmail = findViewById<View>(R.id.etxtEmail) as EditText
         val txtPwd = findViewById<View>(R.id.etxtPwd) as EditText
 
-        var email = txtEmail.text.toString()
-        var pwd = txtPwd.text.toString()
+        val email = txtEmail.text.toString()
+        val pwd = txtPwd.text.toString()
         if (validEmail(email) && validPwd(pwd)){
             mAuth?.signInWithEmailAndPassword(email,pwd)
                     ?.addOnCompleteListener(this) {task ->
@@ -52,11 +52,11 @@ class SignIn : AppCompatActivity() {
         }
     }
 
-    fun validEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    private fun validEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    fun validPwd(pwd: String): Boolean {
+    private fun validPwd(pwd: String): Boolean {
         return pwd.length>=6
     }
 }

@@ -12,7 +12,6 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.gson.JsonObject
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -41,9 +40,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.JSONObject
 import kotlin.collections.HashMap
 
 class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener,PermissionsListener {
@@ -84,7 +81,8 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         }
 
         btnBag.setOnClickListener {
-
+            val intent = Intent(this,Bag::class.java)
+            startActivity(intent)
         }
 
         btnShop.setOnClickListener {
@@ -114,9 +112,6 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
-        if (mapboxMap == null) {
-            Log.d(tag,"[onMapReady] mapboxMap is null")
-        }
         map = mapboxMap
         // Set user interface options
         map?.uiSettings?.isCompassEnabled = true
@@ -147,31 +142,31 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
             priority = LocationEnginePriority.HIGH_ACCURACY
             activate()
         }
-        locationEngine?.priority = LocationEnginePriority.HIGH_ACCURACY
-        locationEngine?.activate()
+        locationEngine.priority = LocationEnginePriority.HIGH_ACCURACY
+        locationEngine.activate()
 
-        var lastLocation : Location? = locationEngine?.lastLocation
+        val lastLocation : Location? = locationEngine.lastLocation
         if (lastLocation != null) {
             originLocation = lastLocation
             setCameraPosition(lastLocation)
         } else {
-            locationEngine?.addLocationEngineListener(this)
+            locationEngine.addLocationEngineListener(this)
         }
     }
 
     private fun centerMe(){
         // set my location in the center
-        if (locationEngine?.lastLocation != null) {
-            setCameraPosition(locationEngine?.lastLocation)
+        if (locationEngine.lastLocation != null) {
+            setCameraPosition(locationEngine.lastLocation)
         }
     }
 
     @SuppressWarnings("MissingPermission")
     private fun initializeLocationLayer() {
         locationLayerPlugin = LocationLayerPlugin(mapView!!,map!!,locationEngine)
-        locationLayerPlugin?.setLocationLayerEnabled(true)
-        locationLayerPlugin?.cameraMode = CameraMode.TRACKING
-        locationLayerPlugin?.renderMode = RenderMode.NORMAL
+        locationLayerPlugin.setLocationLayerEnabled(true)
+        locationLayerPlugin.cameraMode = CameraMode.TRACKING
+        locationLayerPlugin.renderMode = RenderMode.NORMAL
     }
 
     private fun setCameraPosition(location: Location){
@@ -210,13 +205,14 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
 
     private fun downloadMap(date:String) {
         Toast.makeText(this,"Downloading new map!", Toast.LENGTH_LONG).show()
-        var url = "http://homepages.inf.ed.ac.uk/stg/coinz/$date/coinzmap.geojson"
+        val url = "http://homepages.inf.ed.ac.uk/stg/coinz/$date/coinzmap.geojson"
         // download json
         myTask.execute(url)
     }
 
     private fun saveMap() {
         val result : String? = DownloadCompleteRunner.result
+        var rates = ""
         Toast.makeText(this,"Saving new map!", Toast.LENGTH_LONG).show()
         // write json to local storage
         if (result == null) {
@@ -229,10 +225,15 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         }
         Log.d(tag, "[saveMap] Storing lastDownloadDate of$ downloadDate")
         // All objects are from android.context.Context
+        this.openFileInput(filename).use {
+            val result = JSONObject(streamToString(it))
+            rates = result.get("rates").toString()
+        }
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
         // We need an Editor object to make preference changes.
         val editor = settings.edit()
         editor.putString("lastDownloadDate", downloadDate)
+        editor.putString("rates", rates)
         // Apply the edits!
         editor.apply()
     }
@@ -284,30 +285,34 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     }
 
     private fun collect(){
-        if (locationEngine?.lastLocation != null) {
-            val currentLocation = locationEngine?.lastLocation
+        if (locationEngine.lastLocation != null) {
+            val currentLocation = locationEngine.lastLocation
             val curLat = currentLocation.latitude
             val curLng = currentLocation.longitude
-            var iterate = markers.listIterator()
+            val iterate = markers.listIterator()
             while (iterate.hasNext()) {
-                var marker = iterate.next()
+                val marker = iterate.next()
                 if (marker.position.distanceTo(LatLng(curLat,curLng)) <= 25) {
                     map?.removeMarker(marker)
                     upload(marker)
                     iterate.remove()
                 }
             }
+            // update coinzmap.geojson file
+            this.openFileOutput(filename, Context.MODE_PRIVATE).use {
+                it.write(FeatureCollection.fromFeatures(markers2features.values.toMutableList()).toJson().toByteArray())
+            }
         }
     }
 
     private fun upload(marker: Marker){
         // given a marker, upload the corresponding properties to firebase then remove it from markers2features and coinzmap.geojson
-        var f = markers2features.get(marker)
-        var p = f?.properties()
-        var user = mAuth?.getCurrentUser()
-        var email = user?.email
-        var id = p?.get("id").toString() // id of the coin
-        var temp = HashMap<String,Any>() // store id/property
+        val f = markers2features.get(marker)
+        val p = f?.properties()
+        val user = mAuth?.getCurrentUser()
+        val email = user?.email
+        val id = p?.get("id").toString() // id of the coin
+        val temp = HashMap<String,Any>() // store id/property
         temp.put("property",p.toString())
         // store the collected coin in firestore
         db?.collection("users")
@@ -339,9 +344,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         super.onDestroy()
         mapView?.onDestroy()
         // deactivate LocationEngine
-        if (locationEngine != null) {
-            locationEngine?.deactivate()
-        }
+        locationEngine.deactivate()
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
@@ -359,12 +362,8 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     override fun onStop() {
         super.onStop()
         // stop LocationEngine and LocationLayerPlugin
-        if (locationEngine != null) {
-            locationEngine?.removeLocationUpdates()
-        }
-        if (locationLayerPlugin != null) {
-            locationLayerPlugin?.onStop()
-        }
+        locationEngine.removeLocationUpdates()
+        locationLayerPlugin.onStop()
         Log.d(tag, "[onStop] Storing lastDownloadDate of$ downloadDate")
         // All objects are from android.context.Context
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)

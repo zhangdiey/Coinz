@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_sign_up.*
@@ -44,9 +43,9 @@ class SignUp : Activity() {
         val txtEmail = findViewById<View>(R.id.etxtEmail) as EditText
         val txtPwd = findViewById<View>(R.id.etxtPwd) as EditText
 
-        var name = txtName.text.toString()
-        var email = txtEmail.text.toString()
-        var pwd = txtPwd.text.toString()
+        val name = txtName.text.toString()
+        val email = txtEmail.text.toString()
+        val pwd = txtPwd.text.toString()
 
         if (!name.isEmpty() && validEmail(email) && validPwd(pwd)) {
             mAuth?.createUserWithEmailAndPassword(email, pwd)
@@ -69,7 +68,7 @@ class SignUp : Activity() {
         }
     }
 
-    fun addToDB(name:String,email:String){
+    private fun addToDB(name:String,email:String){
         val user= HashMap<String,Any>()
         user.put("name",name)
         user.put("gold",0)
@@ -85,11 +84,13 @@ class SignUp : Activity() {
         }
     }
 
-    fun validEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    // check if email is valid
+    private fun validEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    fun validPwd(pwd: String): Boolean {
+    // check is password is more than 6 in length
+    private fun validPwd(pwd: String): Boolean {
         return pwd.length>=6
     }
 }
