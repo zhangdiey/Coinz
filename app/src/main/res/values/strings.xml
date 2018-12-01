@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Coinz</string>
     <string name="title_activity_sign_up">SignUp</string>
+    <string name="access_token">pk.eyJ1IjoiemhhbmdkaWV5IiwiYSI6ImNqb3Z4c21naTBpazAza3Jwanl4ejJmc2YifQ.2PQ8AdSNt5ppfaBgqAFOFQ</string>
 </resources>

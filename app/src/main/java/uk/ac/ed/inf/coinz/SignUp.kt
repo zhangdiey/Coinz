@@ -3,16 +3,21 @@ package uk.ac.ed.inf.coinz
 import android.os.Bundle
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_sign_up.*
 
 class SignUp : Activity() {
 
     private var mAuth: FirebaseAuth? = null
+    private var db: FirebaseFirestore? = null
+    private val tag = "SignUp"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +32,11 @@ class SignUp : Activity() {
         btnSignUp.setOnClickListener {
             register()
         }
+
+        db = FirebaseFirestore.getInstance()
+        // Use com.google.firebase.Timestamp objects instead of java.util.Date objects
+        val settings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
+        db?.firestoreSettings = settings
     }
 
     private fun register() {
@@ -42,6 +52,7 @@ class SignUp : Activity() {
             mAuth?.createUserWithEmailAndPassword(email, pwd)
                     ?.addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
+                            addToDB(name,email)
                             Toast.makeText(this,"Welcome to CoinZ.",Toast.LENGTH_LONG).show()
                             val intent = Intent(this, GameMain::class.java)
                             startActivity(intent)
@@ -55,6 +66,22 @@ class SignUp : Activity() {
             Toast.makeText(this,"Password must be at least 6 characters.",Toast.LENGTH_LONG).show()
         } else if (name.isEmpty()){
             Toast.makeText(this,"A valid username is required.",Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun addToDB(name:String,email:String){
+        val user= HashMap<String,Any>()
+        user.put("name",name)
+        user.put("gold",0)
+        user.put("level",0)
+        db?.collection("users")
+                ?.document(email)
+                ?.set(user)
+                ?.addOnCompleteListener {
+                    Log.d(tag, "$email has been added to database")
+        }
+                ?.addOnFailureListener {
+                    Log.d(tag, "Failed to add $email to database")
         }
     }
 

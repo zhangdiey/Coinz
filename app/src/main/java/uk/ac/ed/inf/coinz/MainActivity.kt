@@ -13,7 +13,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        var user = FirebaseAuth.getInstance().getCurrentUser();
+        mAuth = FirebaseAuth.getInstance()
+        var user = mAuth?.getCurrentUser()
         if (user != null) {
             // User is signed in
             Toast.makeText(this,"Welcome Back!", Toast.LENGTH_LONG).show()
