@@ -10,8 +10,10 @@ import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.QuerySnapshot
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -95,7 +97,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     }
 
     private fun realtimeUpdateListener() {
-
+        //TODO
     }
 
     override fun onBackPressed() {
@@ -254,6 +256,34 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         if (downloadDate == "" || currentDate != downloadDate){
             downloadMap(currentDate)
             downloadDate = currentDate
+            // remove all the coins from previous days
+            val user = mAuth?.currentUser
+            val email = user?.email
+            val coinRef = db?.collection("users")?.document(email!!)?.collection("coins")
+            deleteCollection(coinRef!!,50)
+        }
+    }
+
+    // remove the collection given the reference
+    private fun deleteCollection(collection: CollectionReference, batchSize: Int) {
+        try {
+            // Retrieve a small batch of documents to avoid out-of-memory errors/
+            var deleted = 0
+            collection
+                    .limit(batchSize.toLong())
+                    .get()
+                    .addOnCompleteListener {
+                        for (document in it.result!!.documents) {
+                            document.getReference().delete()
+                            ++deleted
+                        }
+                        if (deleted >= batchSize) {
+                            // retrieve and delete another batch
+                            deleteCollection(collection, batchSize)
+                        }
+                    }
+        } catch (e: Exception) {
+            Log.e("Error deleting collection : ", e.message)
         }
     }
 
@@ -309,7 +339,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         // given a marker, upload the corresponding properties to firebase then remove it from markers2features and coinzmap.geojson
         val f = markers2features.get(marker)
         val p = f?.properties()
-        val user = mAuth?.getCurrentUser()
+        val user = mAuth?.currentUser
         val email = user?.email
         val id = p?.get("id").toString() // id of the coin
         val temp = HashMap<String,Any>() // store id/property

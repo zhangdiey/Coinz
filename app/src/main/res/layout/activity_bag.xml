@@ -11,13 +11,53 @@
         android:id="@+id/btnBack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Back to Gane"
+        android:text="Back to Game"
         android:textAppearance="@style/TextAppearance.AppCompat" />
 
     <TextView
-        android:id="@+id/txtTitle"
+        android:id="@+id/txtInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <TextView
+        android:id="@+id/txtCoins"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Coins:"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <ListView
+        android:id="@+id/lvCoins"
+        android:layout_width="match_parent"
+        android:layout_height="254dp" />
+
+    <TextView
+        android:id="@+id/txtGifts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Gifts:"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <ListView
+        android:id="@+id/lvGifts"
+        android:layout_width="match_parent"
+        android:layout_height="128dp" />
+
+    <TextView
+        android:id="@+id/txtBooster"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="You Boosters:"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat" />
+
+    <ListView
+        android:id="@+id/lvBoosters"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
