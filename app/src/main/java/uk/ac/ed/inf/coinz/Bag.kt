@@ -50,7 +50,7 @@ class Bag : AppCompatActivity() {
                         val username = user.username
                         val level = user.level
                         val gold = user.gold
-                        txtInfo.text = "$email \nHello, $username!\nYou are at level $level and you have $gold gold in your bank."
+                        txtInfo.text = "Hello, $username!\nYou are at level $level and have $gold gold.\nClick on an item to use it."
                     } else {
                         Toast.makeText(this,"Fail to load user info.", Toast.LENGTH_LONG).show()
                         Log.w(tag, "No such document")
@@ -64,52 +64,91 @@ class Bag : AppCompatActivity() {
     private fun setItems(){
         val user = mAuth?.currentUser
         val email = user?.email
-        val coinRef = db?.collection("users")?.document(email!!)?.collection("coins")
-        val coins = ArrayList<String>()
+        val coinRef = db?.collection("users")?.document(email!!)?.collection("coins") // reference to coins
+        val coins = ArrayList<Coin>() // store all the coins
         val coinList = findViewById<ListView>(R.id.lvCoins)
+        val coinListValue = ArrayList<String>() // store the displayed information
         coinRef?.get()
                 ?.addOnSuccessListener {
                     if (it != null) {
                         for (document in it){
                             val coin:Coin = document.toObject(Coin::class.java)
+                            coins.add(coin)
                             val property = JSONObject(coin.property)
-                            val id = property.get("id")
                             val currency = property.get("currency")
                             val value = property.get("value")
-                            coins.add("id: $id \ncurrency: $currency and value: $value")
+                            coinListValue.add("Currency: $currency and Value: $value")
                         }
                     }
-                    val coinAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,coins)
+                    val coinAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,coinListValue)
                     coinList.adapter = coinAdapter
                 }
-        val giftRef = db?.collection("users")?.document(email!!)?.collection("gifts")
-        val gifts = ArrayList<String>()
+        coinList.setOnItemClickListener { parent, view, position, id ->
+            val coin:Coin = coins[position]
+            val property = JSONObject(coin.property)
+            val intent = Intent(this,StoreAndExchange::class.java)
+            intent.putExtra("coinID",property.get("id").toString()) // pass coin ID to the next activity
+            intent.putExtra("type","coins")
+            startActivity(intent)
+        }
+        val giftRef = db?.collection("users")?.document(email!!)?.collection("gifts") // reference to gifts
+        val gifts = ArrayList<Coin>() // store all the gifts
+        val giftListValue = ArrayList<String>() // store the displayed information
         val giftList = findViewById<ListView>(R.id.lvGifts)
         giftRef?.get()
                 ?.addOnSuccessListener {
                     if (it != null) {
                         for (document in it){
                             val coin:Coin = document.toObject(Coin::class.java)
+                            gifts.add(coin)
                             val property = JSONObject(coin.property)
-                            val id = property.get("id")
                             val currency = property.get("currency")
                             val value = property.get("value")
-                            gifts.add("id: $id \ncurrency: $currency and value: $value")
+                            giftListValue.add("Currency: $currency and Value: $value")
                         }
                     }
-                    val giftAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,gifts)
+                    val giftAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,giftListValue)
                     giftList.adapter = giftAdapter
+                }
+        giftList.setOnItemClickListener { parent, view, position, id ->
+            val coin:Coin = gifts[position]
+            val property = JSONObject(coin.property)
+            val intent = Intent(this,StoreAndExchange::class.java)
+            intent.putExtra("coinID",property.get("id").toString()) // pass coin ID to the next activity
+            intent.putExtra("type","gifts")
+            startActivity(intent)
+        }
+        val boosterRef = db?.collection("users")?.document(email!!)?.collection("boosters") // reference to boosters
+        val boosters = ArrayList<Booster>() // store all the bossters
+        val boostersListValue = ArrayList<String>() // store the displayed information
+        val boosterList = findViewById<ListView>(R.id.lvBoosters)
+        boosterRef?.get()
+                ?.addOnSuccessListener {
+                    if (it != null) {
+                        for (document in it){
+                            val booster:Booster = document.toObject(Booster::class.java)
+                            boosters.add(booster)
+                            val ratio = booster.ratio
+                            val name = booster.name
+                            boostersListValue.add("$name, use it to earn $ratio times of gold.")
+                        }
+                    }
+                    val boosterAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,boostersListValue)
+                    boosterList.adapter = boosterAdapter
                 }
     }
 
     class User{
         var username = ""
         var level = 0
-        var gold = 0
+        var gold = 0.0
     }
 
     class Coin{
         var property = ""
     }
-
+    class Booster{
+        var ratio = ""
+        var name = ""
+    }
 }

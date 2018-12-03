@@ -13,7 +13,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.QuerySnapshot
 import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineListener
 import com.mapbox.android.core.location.LocationEnginePriority
@@ -235,7 +234,10 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         // We need an Editor object to make preference changes.
         val editor = settings.edit()
         editor.putString("lastDownloadDate", downloadDate)
+        // update the rates
         editor.putString("rates", rates)
+        // reset the store time
+        editor.putString("limitedStoreTimes","0")
         // Apply the edits!
         editor.apply()
     }
@@ -274,7 +276,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
                     .get()
                     .addOnCompleteListener {
                         for (document in it.result!!.documents) {
-                            document.getReference().delete()
+                            document.reference.delete()
                             ++deleted
                         }
                         if (deleted >= batchSize) {
@@ -311,7 +313,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
 
     private fun saveMarker(marker:Marker, feature: Feature){
         markers.add(marker)
-        markers2features.put(marker,feature)
+        markers2features[marker] = feature
     }
 
     private fun collect(){
@@ -337,13 +339,13 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
 
     private fun upload(marker: Marker){
         // given a marker, upload the corresponding properties to firebase then remove it from markers2features and coinzmap.geojson
-        val f = markers2features.get(marker)
+        val f = markers2features[marker]
         val p = f?.properties()
         val user = mAuth?.currentUser
         val email = user?.email
         val id = p?.get("id").toString() // id of the coin
         val temp = HashMap<String,Any>() // store id/property
-        temp.put("property",p.toString())
+        temp["property"] = p.toString()
         // store the collected coin in firestore
         db?.collection("users")
                 ?.document(email!!)
@@ -351,7 +353,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
                 ?.document(id)
                 ?.set(temp)
                 ?.addOnCompleteListener {
-                    Log.d(tag, "${id} has been added to database")
+                    Log.d(tag, "$id has been added to database")
                     Toast.makeText(this, "Coin collected!", Toast.LENGTH_SHORT).show()
                 }
                 ?.addOnFailureListener {
