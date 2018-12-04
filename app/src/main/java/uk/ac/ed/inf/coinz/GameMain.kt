@@ -2,11 +2,17 @@ package uk.ac.ed.inf.coinz
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.support.v4.content.res.ResourcesCompat
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
@@ -23,7 +29,6 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.annotations.Icon
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -290,8 +295,9 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     }
 
     private fun renderMarker(){
-        val iconFactory = IconFactory.getInstance(this)
-        val icon = iconFactory.defaultMarker()
+        // use the coin icon
+        val drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.coin_icon, null)
+        val icon = IconFactory.getInstance(this).fromBitmap(drawableToBitmap(drawable!!))
         this.openFileInput(filename).use {
             val result = streamToString(it)
             val featureCollection = FeatureCollection.fromJson(result)
@@ -309,6 +315,28 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
                 }
             }
         }
+    }
+
+    // convert a drawable to bitmap for icon
+    private fun drawableToBitmap(drawable: Drawable): Bitmap {
+        var bitmap: Bitmap? = null
+
+        if (drawable is BitmapDrawable) {
+            if (drawable.bitmap != null) {
+                return Bitmap.createScaledBitmap(drawable.bitmap, 25, 25, false)
+            }
+        }
+
+        if (drawable.intrinsicWidth <= 0 || drawable.intrinsicHeight <= 0) {
+            bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888) // Single color bitmap will be created of 1x1 pixel
+        } else {
+            bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        }
+
+        val canvas = Canvas(bitmap!!)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return Bitmap.createScaledBitmap(bitmap, 25, 25, false)
     }
 
     private fun saveMarker(marker:Marker, feature: Feature){
@@ -344,7 +372,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         val user = mAuth?.currentUser
         val email = user?.email
         val id = p?.get("id").toString() // id of the coin
-        val temp = HashMap<String,Any>() // store id/property
+        val temp = HashMap<String,Any>() // store property
         temp["property"] = p.toString()
         // store the collected coin in firestore
         db?.collection("users")

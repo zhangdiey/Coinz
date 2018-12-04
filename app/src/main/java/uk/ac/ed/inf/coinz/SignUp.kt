@@ -70,7 +70,7 @@ class SignUp : Activity() {
 
     private fun addToDB(name:String,email:String){
         val user= HashMap<String,Any>()
-        user.put("name",name)
+        user.put("username",name)
         user.put("gold",0)
         user.put("level",0)
         db?.collection("users")

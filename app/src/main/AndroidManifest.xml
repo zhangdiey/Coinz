@@ -14,21 +14,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"
+                    android:screenOrientation="portrait"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"
+                    android:screenOrientation="portrait"/>
             </intent-filter>
         </activity>
-        <activity android:name=".SignIn" />
+        <activity android:name=".SignIn"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SignUp"
-            android:label="@string/title_activity_sign_up" />
-        <activity android:name=".GameMain" />
-        <activity android:name=".Menu" />
-        <activity android:name=".Bag" />
-        <activity android:name=".StoreAndExchange"></activity>
+            android:label="@string/title_activity_sign_up"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".GameMain"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Menu"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Bag"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".StoreAndExchange"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
@@ -19,6 +20,7 @@ class StoreAndExchange : AppCompatActivity() {
     private var coinValue = 0.0
     private var coinCurrency = ""
     private var goldValue = 0.0
+    private var coin = Bag.Coin()
     private var db : FirebaseFirestore? = null
     private var mAuth: FirebaseAuth? = null
     private var ratesHM = HashMap<String,Double>() // key:currency value:rate
@@ -48,6 +50,22 @@ class StoreAndExchange : AppCompatActivity() {
                 store()
             } else {
                 Toast.makeText(this,"You have already stored 25 coins today and cannot store any more coins!", Toast.LENGTH_LONG).show()
+            }
+        }
+
+        btnExchange.setOnClickListener {
+            // send the selected coin to another play by email
+            // first check if the email is valid
+            val rEmail = findViewById<EditText>(R.id.etxtEmail).text.toString() // recipient email
+            val sEmail = mAuth?.currentUser?.email // sender email
+            if (validEmail(rEmail)) {
+                if (rEmail == sEmail) {
+                    Toast.makeText(this,"You cannot send coins to yourself.",Toast.LENGTH_LONG).show()
+                } else {
+                    send()
+                }
+            } else {
+                Toast.makeText(this,"A valid email is required.",Toast.LENGTH_LONG).show()
             }
         }
 
@@ -100,6 +118,40 @@ class StoreAndExchange : AppCompatActivity() {
 
     }
 
+    private fun send(){
+        val txtEmail = findViewById<View>(R.id.etxtEmail) as EditText
+        val rEmail = txtEmail.text.toString() // email of the recipient
+        val user = mAuth?.currentUser
+        val email = user?.email // email of the sender i.e. current user
+        // check if the recipient email exist
+        val reciIDRef = db?.collection("users")
+        reciIDRef?.document(rEmail)?.get()
+                ?.addOnSuccessListener { rDocument ->
+                    if (rDocument.exists()){
+                        val temp = HashMap<String,Any>() // store property
+                        temp["property"] = coin.property
+                        reciIDRef?.document(rEmail)?.collection("gifts")?.document("\"$coinID\"")
+                                ?.set(temp)
+                                ?.addOnCompleteListener {
+                                    // delete the coin from sender
+                                    val coinRef = db?.collection("users")?.document(email!!)?.collection(type)
+                                    coinRef?.document("\"$coinID\"")?.delete()
+                                    Log.d(tag, "$coinID has been added to database")
+                                    Toast.makeText(this, "Coin sent to $rEmail!", Toast.LENGTH_SHORT).show()
+                                    val intent = Intent(this,Bag::class.java)
+                                    startActivity(intent)
+                                }
+                                ?.addOnFailureListener {
+                                    Log.d(tag, "Fail to add $coinID to database")
+                                }
+                    } else {
+                        txtEmail.text.clear()
+                        Toast.makeText(this, "$rEmail does not exits, please check it and try again!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+    }
+
     private fun loadRates(){
         val txtInfo = findViewById<View>(R.id.txtRates) as TextView
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
@@ -115,12 +167,12 @@ class StoreAndExchange : AppCompatActivity() {
         val user = mAuth?.currentUser
         val email = user?.email
         val txtInfo = findViewById<View>(R.id.txtInfo) as TextView
-        val docRef = db?.collection("users")?.document(email!!)?.collection("coins")?.document("\"$coinID\"")
+        val docRef = db?.collection("users")?.document(email!!)?.collection("$type")?.document("\"$coinID\"")
         docRef?.get()
                 ?.addOnSuccessListener { document ->
                     if (document != null) {
                         Log.d(tag, "DocumentSnapshot data: " + document.data)
-                        var coin : Bag.Coin = document.toObject(Bag.Coin::class.java)!!
+                        coin = document.toObject(Bag.Coin::class.java)!!
                         val property = JSONObject(coin.property)
                         coinCurrency = property.get("currency").toString()
                         coinValue = property.get("value").toString().toDouble()
@@ -136,6 +188,10 @@ class StoreAndExchange : AppCompatActivity() {
                         Log.w(tag, "No such document")
                     }
                 }
+    }
+
+    private fun validEmail(email: String): Boolean {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
 }

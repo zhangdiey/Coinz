@@ -27,7 +27,6 @@ class Bag : AppCompatActivity() {
         val settings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
         db?.firestoreSettings = settings
         mAuth = FirebaseAuth.getInstance()
-        Toast.makeText(this,"Loading your information...", Toast.LENGTH_LONG).show()
         setInfo() // get user's info from database and display it
         setItems() // get user's items including coins, gifts, and booster
 
@@ -35,6 +34,11 @@ class Bag : AppCompatActivity() {
             val intent = Intent(this, GameMain::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onBackPressed() {
+        val intent = Intent(this, GameMain::class.java)
+        startActivity(intent)
     }
 
     private fun setInfo(){
