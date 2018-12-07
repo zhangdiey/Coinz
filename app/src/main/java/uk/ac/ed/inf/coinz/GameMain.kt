@@ -92,7 +92,8 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         }
 
         btnShop.setOnClickListener {
-
+            val intent = Intent(this,Store::class.java)
+            startActivity(intent)
         }
 
         btnCenter.setOnClickListener {
@@ -101,7 +102,7 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     }
 
     private fun realtimeUpdateListener() {
-        //TODO
+        // Not going to implement for this project
     }
 
     override fun onBackPressed() {
@@ -350,9 +351,11 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
             val curLat = currentLocation.latitude
             val curLng = currentLocation.longitude
             val iterate = markers.listIterator()
+            // looking for coins within 25 meters
             while (iterate.hasNext()) {
                 val marker = iterate.next()
                 if (marker.position.distanceTo(LatLng(curLat,curLng)) <= 25) {
+                    // remove marker and add the coin to database
                     map?.removeMarker(marker)
                     upload(marker)
                     iterate.remove()

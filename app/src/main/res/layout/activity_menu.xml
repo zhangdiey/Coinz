@@ -5,6 +5,7 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/ic_launcher_background"
     android:orientation="vertical"
     tools:context=".Menu">
 
@@ -13,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Back to Game"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="?attr/colorPrimary" />
 
     <Button
         android:id="@+id/btnSignOut"
@@ -21,6 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Sign Out"
         android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

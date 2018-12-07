@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="@drawable/ic_launcher_background"
     android:orientation="vertical"
-    tools:context=".StoreAndExchange">
+    tools:context=".Store">
 
     <Button
         android:id="@+id/btnBack"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Back to Bag"
+        android:text="Back to Game"
         android:textAppearance="@style/TextAppearance.AppCompat"
         android:textColor="?attr/colorPrimary" />
 
@@ -20,55 +20,52 @@
         android:id="@+id/txtInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textColor="?attr/actionModeSplitBackground" />
-
-    <TextView
-        android:id="@+id/txtRates"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textColor="@android:color/holo_red_dark" />
-
-    <TextView
-        android:id="@+id/txtYouCan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="YOU CAN"
+        android:text="Welcome to the shop! You have gold. \nClick on the item to buy it."
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat" />
 
-    <Button
-        android:id="@+id/btnStore"
+    <TextView
+        android:id="@+id/txtGoldTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Store to Bank"
+        android:text="Gold Booster"
+        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat"
-        android:textColor="?android:attr/colorActivatedHighlight" />
+        android:textColor="@android:color/holo_orange_light" />
+
+    <ListView
+        android:id="@+id/lvGB"
+        android:layout_width="match_parent"
+        android:layout_height="192dp"
+        android:background="@drawable/coin_icon" />
 
     <TextView
-        android:id="@+id/txtEmail"
+        android:id="@+id/txtExpBooster"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="OR\nPlease enter recipient's email"
+        android:text="Exp Booster"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@android:color/holo_purple" />
 
-    <EditText
-        android:id="@+id/etxtEmail"
+    <ListView
+        android:id="@+id/lvEB"
+        android:layout_width="match_parent"
+        android:layout_height="132dp"
+        android:background="@drawable/exp_boost2" />
+
+    <TextView
+        android:id="@+id/txtOthers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textEmailAddress"
-        android:textAlignment="viewStart"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:text="Other Items"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@android:color/holo_red_light" />
 
-    <Button
-        android:id="@+id/btnExchange"
+    <ListView
+        android:id="@+id/lvOI"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Send"
-        android:textColor="?attr/colorError" />
+        android:layout_height="match_parent"
+        android:background="?android:attr/autofilledHighlight" />
 </LinearLayout>

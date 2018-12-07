@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/ic_launcher_background"
     android:orientation="vertical"
     tools:context=".Bag">
 
@@ -12,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Back to Game"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="?attr/colorPrimary" />
 
     <TextView
         android:id="@+id/txtInfo"
@@ -27,12 +29,14 @@
         android:layout_height="wrap_content"
         android:text="Your Coins:"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@android:color/holo_orange_light" />
 
     <ListView
         android:id="@+id/lvCoins"
         android:layout_width="match_parent"
-        android:layout_height="254dp" />
+        android:layout_height="254dp"
+        android:background="@drawable/common_google_signin_btn_text_dark_normal_background" />
 
     <TextView
         android:id="@+id/txtGifts"
@@ -40,12 +44,14 @@
         android:layout_height="wrap_content"
         android:text="Your Gifts:"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@android:color/holo_red_light" />
 
     <ListView
         android:id="@+id/lvGifts"
         android:layout_width="match_parent"
-        android:layout_height="128dp" />
+        android:layout_height="128dp"
+        android:background="@drawable/common_google_signin_btn_text_dark_normal_background" />
 
     <TextView
         android:id="@+id/txtBooster"
@@ -53,11 +59,13 @@
         android:layout_height="wrap_content"
         android:text="You Boosters:"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="?attr/actionModeSplitBackground" />
 
     <ListView
         android:id="@+id/lvBoosters"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@drawable/common_google_signin_btn_text_dark_normal_background" />
 
 </LinearLayout>

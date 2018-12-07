@@ -26,7 +26,8 @@ class StoreAndExchange : AppCompatActivity() {
     private var ratesHM = HashMap<String,Double>() // key:currency value:rate
     private val tag = "StoreAndExchange"
     private val preferencesFile = "MyPrefsFile"
-    private var boostRatio = 1 // the ratio when convert coins to gold. e.g. 2 means double.
+    private var goldBoostRatio = 1 // the ratio when convert coins to gold. e.g. 2 means double.
+    private var expBoostRAtio = 1// the ratio the user will get for exp when storing coins. e.g. 2 means storing 1 coin = level up 2 level
     private var type = ""
     private var storeTimes = 0 // record how many times the user has stored coins
 
@@ -87,17 +88,21 @@ class StoreAndExchange : AppCompatActivity() {
     private fun store(){
         val user = mAuth?.currentUser
         val email = user?.email
-        val goldRef = db?.collection("users")?.document(email!!)
+        val userRef = db?.collection("users")?.document(email!!)
         var originalGold = 0.0
+        var originalLevel = 0
         // update user's gold
-        goldRef?.get()
+        userRef?.get()
                 ?.addOnSuccessListener { document ->
                     if (document != null) {
                         Log.d(tag, "DocumentSnapshot data: " + document.data)
                         val user:Bag.User = document.toObject(Bag.User::class.java)!!
                         originalGold = user.gold
-                        goldRef.update("gold",originalGold + goldValue * boostRatio)
+                        originalLevel = user.level
+                        userRef.update("gold",originalGold + goldValue * goldBoostRatio)
                                 .addOnCompleteListener{
+                                    // level up
+                                    userRef.update("level",originalLevel + expBoostRAtio)
                                     // delete the coin
                                     val coinRef = db?.collection("users")?.document(email!!)?.collection(type)
                                     coinRef?.document("\"$coinID\"")?.delete()
@@ -153,6 +158,7 @@ class StoreAndExchange : AppCompatActivity() {
     }
 
     private fun loadRates(){
+        // load the rates from pref file
         val txtInfo = findViewById<View>(R.id.txtRates) as TextView
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
         val rates = JSONObject(settings.getString("rates", ""))
@@ -164,6 +170,7 @@ class StoreAndExchange : AppCompatActivity() {
     }
 
     private fun loadCoin(){
+        // load the coin the user selected
         val user = mAuth?.currentUser
         val email = user?.email
         val txtInfo = findViewById<View>(R.id.txtInfo) as TextView

@@ -42,6 +42,7 @@ class Bag : AppCompatActivity() {
     }
 
     private fun setInfo(){
+        // read user info from database and load it as textview
         val user = mAuth?.currentUser
         val email = user?.email
         val txtInfo = findViewById<View>(R.id.txtInfo) as TextView
@@ -66,6 +67,7 @@ class Bag : AppCompatActivity() {
     }
 
     private fun setItems(){
+        // read items from database and load it as listview
         val user = mAuth?.currentUser
         val email = user?.email
         val coinRef = db?.collection("users")?.document(email!!)?.collection("coins") // reference to coins
@@ -81,7 +83,7 @@ class Bag : AppCompatActivity() {
                             val property = JSONObject(coin.property)
                             val currency = property.get("currency")
                             val value = property.get("value")
-                            coinListValue.add("Currency: $currency and Value: $value")
+                            coinListValue.add("Currency: $currency\nValue: $value")
                         }
                     }
                     val coinAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,coinListValue)
@@ -123,7 +125,7 @@ class Bag : AppCompatActivity() {
             startActivity(intent)
         }
         val boosterRef = db?.collection("users")?.document(email!!)?.collection("boosters") // reference to boosters
-        val boosters = ArrayList<Booster>() // store all the bossters
+        val boosters = ArrayList<Booster>() // store all the boosters
         val boostersListValue = ArrayList<String>() // store the displayed information
         val boosterList = findViewById<ListView>(R.id.lvBoosters)
         boosterRef?.get()
@@ -132,9 +134,17 @@ class Bag : AppCompatActivity() {
                         for (document in it){
                             val booster:Booster = document.toObject(Booster::class.java)
                             boosters.add(booster)
+                            val type = booster.type
+                            val amount = booster.amount
                             val ratio = booster.ratio
                             val name = booster.name
-                            boostersListValue.add("$name, use it to earn $ratio times of gold.")
+                            if (type == "gold") {
+                                boostersListValue.add("Item Name: $name\nUse it to earn $ratio times of gold.")
+                            } else if (type == "exp") {
+                                boostersListValue.add("Item Name: $name\nUse it to earn $ratio times of experience.")
+                            } else if (type == "bank") {
+                                boostersListValue.add("Item Name: $name\nUse it to store $amount extra coins to the bank.")
+                            }
                         }
                     }
                     val boosterAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,boostersListValue)
@@ -152,7 +162,10 @@ class Bag : AppCompatActivity() {
         var property = ""
     }
     class Booster{
-        var ratio = ""
+        var ratio = 0.0 // for gold and exp boosters only
         var name = ""
+        var cost = 0.0
+        var type = ""
+        var amount = 0 // for bank items only
     }
 }
