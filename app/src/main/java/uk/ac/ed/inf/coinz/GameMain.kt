@@ -244,6 +244,10 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         editor.putString("rates", rates)
         // reset the store time
         editor.putString("limitedStoreTimes","0")
+        // reset exp booster
+        editor.putString("expBoostRatio","1")
+        // reset gold booster
+        editor.putString("goldBoostRatio","1")
         // Apply the edits!
         editor.apply()
     }

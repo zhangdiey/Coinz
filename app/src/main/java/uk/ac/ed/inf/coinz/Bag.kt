@@ -1,5 +1,6 @@
 package uk.ac.ed.inf.coinz
 
+import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -19,6 +20,7 @@ class Bag : AppCompatActivity() {
     private var db : FirebaseFirestore? = null
     private var mAuth: FirebaseAuth? = null
     private val tag = "Bag"
+    private val preferencesFile = "MyPrefsFile" // for storing preferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +91,7 @@ class Bag : AppCompatActivity() {
                     val coinAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,coinListValue)
                     coinList.adapter = coinAdapter
                 }
+        // click a coin to the store and exchange activity
         coinList.setOnItemClickListener { parent, view, position, id ->
             val coin:Coin = coins[position]
             val property = JSONObject(coin.property)
@@ -116,6 +119,7 @@ class Bag : AppCompatActivity() {
                     val giftAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,giftListValue)
                     giftList.adapter = giftAdapter
                 }
+        // click a gift to the store and exchange activity
         giftList.setOnItemClickListener { parent, view, position, id ->
             val coin:Coin = gifts[position]
             val property = JSONObject(coin.property)
@@ -150,6 +154,41 @@ class Bag : AppCompatActivity() {
                     val boosterAdapter = ArrayAdapter(this,android.R.layout.simple_expandable_list_item_1,boostersListValue)
                     boosterList.adapter = boosterAdapter
                 }
+        boosterList.setOnItemClickListener { parent, view, position, id ->
+            val booster:Booster = boosters[position]
+            val type = booster.type
+            if (type == "gold") {
+                val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
+                // We need an Editor object to make preference changes.
+                val editor = settings.edit()
+                editor.putString("goldBoostRatio", booster.ratio.toString())
+                editor.apply()
+                Toast.makeText(this,"You now receive ${booster.ratio} times of the gold!", Toast.LENGTH_LONG).show()
+            } else if (type == "exp") {
+                val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
+                // We need an Editor object to make preference changes.
+                val editor = settings.edit()
+                editor.putString("expBoostRatio", booster.ratio.toString())
+                editor.apply()
+                Toast.makeText(this,"You now receive ${booster.ratio} times of the experience!", Toast.LENGTH_LONG).show()
+            } else if (type == "bank") {
+                val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
+                // We need an Editor object to make preference changes.
+                val editor = settings.edit()
+                val storeTimes = settings.getString("limitedStoreTimes", "0").toInt()
+                editor.putString("limitedStoreTimes", (storeTimes - booster.amount).toString())
+                editor.apply()
+                Toast.makeText(this,"You can store ${booster.amount} extra coin to the bank!", Toast.LENGTH_LONG).show()
+            }
+            // remove the used booster
+            val user = mAuth?.currentUser
+            val email = user?.email
+            val boosterRef = db?.collection("users")?.document(email!!)?.collection("boosters")
+            boosterRef?.document(booster.name)?.delete()
+            setInfo()
+            setItems()
+        }
+
     }
 
     class User{

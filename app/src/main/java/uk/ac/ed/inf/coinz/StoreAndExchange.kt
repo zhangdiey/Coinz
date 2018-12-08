@@ -26,8 +26,8 @@ class StoreAndExchange : AppCompatActivity() {
     private var ratesHM = HashMap<String,Double>() // key:currency value:rate
     private val tag = "StoreAndExchange"
     private val preferencesFile = "MyPrefsFile"
-    private var goldBoostRatio = 1 // the ratio when convert coins to gold. e.g. 2 means double.
-    private var expBoostRAtio = 1// the ratio the user will get for exp when storing coins. e.g. 2 means storing 1 coin = level up 2 level
+    private var goldBoostRatio = 1.0 // the ratio when convert coins to gold. e.g. 2 means double.
+    private var expBoostRatio = 1.0// the ratio the user will get for exp when storing coins. e.g. 2 means storing 1 coin = level up 2 level
     private var type = ""
     private var storeTimes = 0 // record how many times the user has stored coins
 
@@ -38,6 +38,11 @@ class StoreAndExchange : AppCompatActivity() {
         val settings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
         db?.firestoreSettings = settings
         mAuth = FirebaseAuth.getInstance()
+
+        // read exp boost ratio and gold boost ratio from pref file
+        val fileSettings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
+        goldBoostRatio = fileSettings.getString("goldBoostRatio", "1").toDouble()
+        expBoostRatio = fileSettings.getString("expBoostRatio", "1").toDouble()
 
         btnBack.setOnClickListener{
             val intent = Intent(this,Bag::class.java)
@@ -102,7 +107,7 @@ class StoreAndExchange : AppCompatActivity() {
                         userRef.update("gold",originalGold + goldValue * goldBoostRatio)
                                 .addOnCompleteListener{
                                     // level up
-                                    userRef.update("level",originalLevel + expBoostRAtio)
+                                    userRef.update("level",originalLevel + expBoostRatio)
                                     // delete the coin
                                     val coinRef = db?.collection("users")?.document(email!!)?.collection(type)
                                     coinRef?.document("\"$coinID\"")?.delete()
