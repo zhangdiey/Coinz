@@ -67,7 +67,10 @@ class StoreAndExchange : AppCompatActivity() {
             if (validEmail(rEmail)) {
                 if (rEmail == sEmail) {
                     Toast.makeText(this,"You cannot send coins to yourself.",Toast.LENGTH_LONG).show()
-                } else {
+                } else if (belowLimitedTimes()) {
+                    // if the user has not stored the maximum amount (by default 25) of coins already, he/she cannot send coins to others.
+                    Toast.makeText(this,"You cannot send coins because you can still deposit them.",Toast.LENGTH_LONG).show()
+                }else {
                     send()
                 }
             } else {
@@ -111,11 +114,13 @@ class StoreAndExchange : AppCompatActivity() {
                                     // delete the coin
                                     val coinRef = db?.collection("users")?.document(email!!)?.collection(type)
                                     coinRef?.document("\"$coinID\"")?.delete()
-                                    // update pref file
-                                    val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
-                                    val editor = settings.edit()
-                                    editor.putString("limitedStoreTimes",(storeTimes+1).toString())
-                                    editor.apply()
+                                    // update pref file if it is not a gift
+                                    if (type == "coin") {
+                                        val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
+                                        val editor = settings.edit()
+                                        editor.putString("limitedStoreTimes",(storeTimes+1).toString())
+                                        editor.apply()
+                                    }
                                     Toast.makeText(this,"Successfully stored your coin!", Toast.LENGTH_LONG).show()
                                     val intent = Intent(this,Bag::class.java)
                                     startActivity(intent)
@@ -195,7 +200,7 @@ class StoreAndExchange : AppCompatActivity() {
                             "SHIL" -> goldValue = coinValue * ratesHM["SHIL"]!!
                             "DOLR" -> goldValue = coinValue * ratesHM["DOLR"]!!
                         }
-                        txtInfo.text = "You have selected $coinValue $coinCurrency.\nIt can be converted to $goldValue gold."
+                        txtInfo.text = "You have selected $coinValue $coinCurrency.\nIt can be converted to ${goldValue* goldBoostRatio} gold."
                     } else {
                         Log.w(tag, "No such document")
                     }
