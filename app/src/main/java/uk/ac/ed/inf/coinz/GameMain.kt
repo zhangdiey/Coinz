@@ -411,7 +411,9 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
         super.onDestroy()
         mapView?.onDestroy()
         // deactivate LocationEngine
-        locationEngine.deactivate()
+        if (this::locationEngine.isInitialized) {
+            locationEngine.deactivate()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
@@ -429,8 +431,13 @@ class GameMain : AppCompatActivity(), OnMapReadyCallback, LocationEngineListener
     override fun onStop() {
         super.onStop()
         // stop LocationEngine and LocationLayerPlugin
-        locationEngine.removeLocationUpdates()
-        locationLayerPlugin.onStop()
+        if (this::locationEngine.isInitialized) {
+            locationEngine.removeLocationUpdates()
+
+        }
+        if (this::locationLayerPlugin.isInitialized) {
+            locationLayerPlugin.onStop()
+        }
         Log.d(tag, "[onStop] Storing lastDownloadDate of$ downloadDate")
         // All objects are from android.context.Context
         val settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE)
